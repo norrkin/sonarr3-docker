@@ -1,0 +1,31 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+    TAG: 3.0.4.1060
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Docker login
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    - name: Build docker image
+      run: docker build -t sonarr3 .
+    - name: Tag docker images
+      run:  |
+          docker tag sonarr3 ${{ secrets.DOCKER_USERNAME }}/sonarr3:${TAG}
+          docker tag sonarr3 ${{ secrets.DOCKER_USERNAME }}/sonarr3:latest
+    - name: Push docker images
+      run:  |
+          docker push ${{ secrets.DOCKER_USERNAME }}/sonarr3:${TAG}
+          docker push ${{ secrets.DOCKER_USERNAME }}/sonarr3:latest
