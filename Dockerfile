@@ -5,7 +5,7 @@ FROM mono:latest
 LABEL maintainer "mark <norrkin@icloud.com>"
 
 # Define what release we want to use
-ENV SONARR_VERSION 3.0.4.1060
+ENV SONARR_VERSION 3.0.4.1062
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl libmediainfo0v5 && \
     mkdir -p /sonarr && \
@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl libmediain
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Mount volumes
-VOLUME ["/config", "/downloads", "/torrents"]
+VOLUME ["/config", "/download", "/torrents"]
 
 # Set working directory
 WORKDIR /sonarr
