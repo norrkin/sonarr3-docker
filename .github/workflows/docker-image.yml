@@ -1,31 +1,46 @@
-name: Docker Image CI
+name: sonarr-pipeline
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  - push
 
 env:
-    TAG: 3.0.6.1196
+    TAG: 3.0.6.1265
 
 jobs:
-
   build:
-
+    name: App and Container Build
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Docker login
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build docker image
-      run: docker build -t sonarr3 .
+      run: docker build -t sonarr .
+       
+    - name: Create tar for trivy
+      run:  |
+          docker save -o sonarr.tar sonarr
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        input: sonarr.tar
+        format: 'template'
+        template: '@/contrib/sarif.tpl'
+        output: 'trivy-results.sarif'
+        severity: HIGH,CRITICAL
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        sarif_file: 'trivy-results.sarif'
+
     - name: Tag docker images
       run:  |
-          docker tag sonarr3 ${{ secrets.DOCKER_USERNAME }}/sonarr3:${TAG}
-          docker tag sonarr3 ${{ secrets.DOCKER_USERNAME }}/sonarr3:latest
+          docker tag sonarr ${{ secrets.DOCKER_USERNAME }}/sonarr:${TAG}
+          docker tag sonarr ${{ secrets.DOCKER_USERNAME }}/sonarr:latest
+        
     - name: Push docker images
       run:  |
-          docker push ${{ secrets.DOCKER_USERNAME }}/sonarr3:${TAG}
-          docker push ${{ secrets.DOCKER_USERNAME }}/sonarr3:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/sonarr:${TAG}
+          docker push ${{ secrets.DOCKER_USERNAME }}/sonarr:latest
