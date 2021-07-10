@@ -1,4 +1,4 @@
-name: sonarr-pipeline
+name: sonarr3-pipeline
 
 on:
   - push
@@ -15,16 +15,16 @@ jobs:
     - name: Docker login
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
     - name: Build docker image
-      run: docker build -t sonarr .
+      run: docker build -t sonarr3 .
        
     - name: Create tar for trivy
       run:  |
-          docker save -o sonarr.tar sonarr
+          docker save -o sonarr3.tar sonarr3
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        input: sonarr.tar
+        input: sonarr3.tar
         format: 'template'
         template: '@/contrib/sarif.tpl'
         output: 'trivy-results.sarif'
@@ -37,10 +37,10 @@ jobs:
 
     - name: Tag docker images
       run:  |
-          docker tag sonarr ${{ secrets.DOCKER_USERNAME }}/sonarr:${TAG}
-          docker tag sonarr ${{ secrets.DOCKER_USERNAME }}/sonarr:latest
+          docker tag sonarr3 ${{ secrets.DOCKER_USERNAME }}/sonarr3:${TAG}
+          docker tag sonarr3 ${{ secrets.DOCKER_USERNAME }}/sonarr3:latest
         
     - name: Push docker images
       run:  |
-          docker push ${{ secrets.DOCKER_USERNAME }}/sonarr:${TAG}
-          docker push ${{ secrets.DOCKER_USERNAME }}/sonarr:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/sonarr3:${TAG}
+          docker push ${{ secrets.DOCKER_USERNAME }}/sonarr3:latest
