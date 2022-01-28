@@ -5,7 +5,7 @@ FROM mono:latest
 LABEL maintainer "mark <norrkin@icloud.com>"
 
 # Define what release we want to use
-ENV SONARR_VERSION 3.0.6.1196
+ENV SONARR_VERSION 3.0.6.1342
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl libmediainfo0v5 && \
     mkdir -p /sonarr && \
